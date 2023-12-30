@@ -68,24 +68,31 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (context, index) {
                   // Accède aux données de chaque utilisateur
                   var userData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                  print("tata"+ userData.toString());
-                  print('ID du document: ${snapshot.data!.docs[index].id}');
+
                   // Utilise ces données pour construire un widget d'élément de liste
-                  return ListTile(
-                    title: Text(userData['displayName'] ?? 'Nom d\'utilisateur manquant'),
-                    subtitle: Text(userData['bio'] ?? 'bio manquant'),
-                    onTap: () {
-                      // Naviguer vers la page ChatPage en passant l'ID, le displayName, etc.
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatPage(
-                            userId: userData['id'],
-                            displayName: userData['displayName'] ?? 'Nom d\'utilisateur manquant',
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    width: 200.0, // Ajustez la largeur selon vos besoins
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black), // Bordure noire
+                    ),
+                    child: ListTile(
+                      tileColor: Colors.greenAccent,
+                      title: Text(userData['displayName'] ?? 'Nom d\'utilisateur manquant', style: TextStyle(fontSize: 28.0), ),
+                      subtitle: Text(userData['bio'] ?? 'bio manquant'),
+                      onTap: () {
+                        // Naviguer vers la page ChatPage en passant l'ID, le displayName, etc.
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChatPage(
+                              userId: userData['id'],
+                              displayName: userData['displayName'] ?? 'Nom d\'utilisateur manquant',
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   );
                 },
               );

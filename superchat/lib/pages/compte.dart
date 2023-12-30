@@ -61,8 +61,10 @@ class AccountPage extends StatelessWidget {
                           return ListTile(
                             title: Text(
                               userData['displayName'] ?? 'Nom d\'utilisateur manquant',
+                              style: TextStyle(fontSize: 28.0),
                             ),
-                            subtitle: Text(userData['bio'] ?? 'pas de bin '),
+                            subtitle: Text(userData['bio'] ?? 'pas de bin ',
+                              style: TextStyle(fontSize: 28.0), ),
 
                           );
                         },
