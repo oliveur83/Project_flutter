@@ -5,7 +5,7 @@ import 'package:superchat/util/constants.dart';
 import 'package:superchat/pages/sign_in_page.dart';
 import 'package:superchat/widgets/stream_listener.dart';
 import 'chat_page.dart';
-import 'package:superchat/chat_app.dart';
+
 import 'compte.dart';
 
 class HomePage extends StatefulWidget {
@@ -49,7 +49,9 @@ class _HomePageState extends State<HomePage> {
               onPressed: () async {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AccountPage()),
+                  MaterialPageRoute(builder: (context) => AccountPage(
+
+                  )),
                 );
                 // Vous pouvez ajouter des actions supplémentaires après la déconnexion si nécessaire
               },
@@ -67,24 +69,27 @@ class _HomePageState extends State<HomePage> {
                   // Accède aux données de chaque utilisateur
                   var userData = snapshot.data!.docs[index].data() as Map<String, dynamic>;
                   print("tata"+ userData.toString());
+                  print('ID du document: ${snapshot.data!.docs[index].id}');
                   // Utilise ces données pour construire un widget d'élément de liste
                   return ListTile(
                     title: Text(userData['displayName'] ?? 'Nom d\'utilisateur manquant'),
-                    subtitle: Text(userData['bin'] ?? 'bio manquant'),
+                    subtitle: Text(userData['bio'] ?? 'bio manquant'),
                     onTap: () {
-                      // Naviguer vers la page ChatPage en passant l'ID
+                      // Naviguer vers la page ChatPage en passant l'ID, le displayName, etc.
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatPage(userId: userData['id']),
+                          builder: (context) => ChatPage(
+                            userId: userData['id'],
+                            displayName: userData['displayName'] ?? 'Nom d\'utilisateur manquant',
+                          ),
                         ),
                       );
                     },
                   );
-
-
                 },
               );
+
             } else if (snapshot.hasError) {
               return Text('Erreur : ${snapshot.error}');
             } else {

@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatPage extends StatefulWidget {
   final String userId;
-
-  const ChatPage({required this.userId, Key? key}) : super(key: key);
+  final String displayName;
+  const ChatPage({required this.userId, required this.displayName, Key? key}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -52,7 +52,7 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat with ${widget.userId}'),
+        title: Text('Chat with ${widget.displayName}'),
       ),
       body: Column(
         children: [
@@ -81,25 +81,28 @@ class _ChatPageState extends State<ChatPage> {
                   itemBuilder: (context, index) {
                     final userData = users[index].data() as Map<String, dynamic>;
 
-                    // Ajouter une condition pour filtrer les messages d'un certain expéditeur
-                    if (userData['from'] == widget.userId && userData['to'] == user?.uid ) {
+                    if (userData['from'] == widget.userId && userData['to'] == user?.uid) {
+                      return Align(
+                        alignment: Alignment.topRight,
+                        child: ListTile(
+                          title: Text("vous"),
+                          subtitle: Text(userData['content'] ?? 'bio manquant'),
+                          // Autres éléments du ListTile si nécessaire
+                        ),
+                      );
+                    } else if (userData['to'] == widget.userId && userData['from'] == user?.uid) {
                       return ListTile(
-                        title: Text(userData['content']),
+                        title: Text('${widget.displayName}'),
+                        subtitle: Text(userData['content'] ?? 'bio manquant'),
                         // Autres éléments du ListTile si nécessaire
                       );
-                    }
-                    else if(userData['to'] == widget.userId && userData['from'] == user?.uid){
-                      return ListTile(
-                        title: Text(userData['content']),
-                        // Autres éléments du ListTile si nécessaire
-                      );
-
-                    }else {
+                    } else {
                       // Retourner un Widget vide (Container) si le message ne provient pas de l'expéditeur ciblé
                       return Container();
                     }
                   },
                 );
+
               },
             ),
           ),

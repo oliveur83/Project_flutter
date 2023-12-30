@@ -47,33 +47,30 @@ class AccountPage extends StatelessWidget {
             // Zone pour afficher la liste existante
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: _collectionRef
-                    .where('id', isEqualTo: user?.uid)
-                    .snapshots(),
+                stream: _collectionRef.where('id', isEqualTo: user?.uid).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index) {
-                        var userData =
-                        snapshot.data!.docs[index].data() as Map<String, dynamic>;
-                        print("tata" + userData.toString());
-                        return ListTile(
-                          title: Text(
-                              userData['displayName'] ?? 'Nom d\'utilisateur manquant'),
-                          subtitle: Text(userData['bin'] ?? 'pas de bin '),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    ChatPage(userId: userData['id']),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
+                    var userDocuments = snapshot.data!.docs;
+                    if (userDocuments.isNotEmpty) {
+                      var userData = userDocuments.first.data() as Map<String, dynamic>;
+
+                      return ListView.builder(
+                        itemCount: 1, // Vous n'affichez qu'un seul élément puisque vous accédez à un seul document
+                        itemBuilder: (context, index) {
+                          print("titi" + userData.toString());
+                          return ListTile(
+                            title: Text(
+                              userData['displayName'] ?? 'Nom d\'utilisateur manquant',
+                            ),
+                            subtitle: Text(userData['bio'] ?? 'pas de bin '),
+
+                          );
+                        },
+                      );
+                    } else {
+                      // L'utilisateur n'a pas de document correspondant à son ID
+                      return Text('Aucun document trouvé pour cet utilisateur.');
+                    }
                   } else if (snapshot.hasError) {
                     return Text('Erreur : ${snapshot.error}');
                   } else {
@@ -81,6 +78,7 @@ class AccountPage extends StatelessWidget {
                   }
                 },
               ),
+
             ),
             // Zone pour les nouveaux champs et le bouton
             Padding(
@@ -101,21 +99,37 @@ class AccountPage extends StatelessWidget {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       String newDisplayName = displayNameController.text;
                       String newBin = binController.text;
                       print(user.toString()+"titi");
                       if (user?.uid != null) {
-                        // Utilisez la méthode set avec l'option merge pour créer ou mettre à jour le document
-                        _collectionRef.doc(user?.uid).set({
-                          'displayName': newDisplayName,
-                          'bin': newBin,
-                        }, SetOptions(merge: true)).then((_) {
-                          print('Données mises à jour avec succès');
-                        }).catchError((error) {
-                          print('Erreur lors de la mise à jour des données : $error');
-                        });
+                        String targetId = user!.uid; // ou la valeur de l'id que vous souhaitez mettre à jour
+
+// Effectuez une requête pour obtenir le document avec le champ 'id' égal à targetId
+                        var querySnapshot = await FirebaseFirestore.instance
+                            .collection('users')
+                            .where('id', isEqualTo: targetId)
+                            .get();
+
+// Vérifiez si un document correspondant a été trouvé
+                        if (querySnapshot.docs.isNotEmpty) {
+                          // Récupérez le premier document trouvé
+                          var userDocument = querySnapshot.docs.first;
+
+                          // Mettez à jour le document avec les nouvelles valeurs
+                          await userDocument.reference.update({
+                            'displayName': newDisplayName,
+                            'bio': newBin,
+                          });
+
+                          print('Document mis à jour avec succès.');
+                        } else {
+                          // Aucun document correspondant n'a été trouvé
+                          print('Aucun document trouvé avec l\'ID spécifié.');
+                        }
                       }
+
                       displayNameController.clear();
                       binController.clear();
                     },
